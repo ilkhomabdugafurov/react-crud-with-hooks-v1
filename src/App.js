@@ -1,25 +1,67 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import UserTable from "./tables/UserTable";
+import userList from "./data";
+import AddUserForm from "./forms/AddUserForm";
+import EditUserForm from "./forms/EditUserForm";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    const [users, setUsers] = useState(userList);
+
+    const addUser = (user) => {
+        user.id = users.length + 1;
+        setUsers([...users, user]);
+    };
+
+    const deleteUser = (id) => {
+        setUsers(users.filter((user) => user.id !== id));
+    };
+
+    const [editing, setEditing] = useState(false);
+
+    const initialUser = { id: null, name: "", username: "" };
+
+    const [currentUser, setCurrentUser] = useState(initialUser);
+
+    const editUser = (id, user) => {
+        setEditing(true);
+        setCurrentUser(user);
+    };
+
+    const updateUser = (newUser) => {
+        setUsers(
+            users.map((user) => (user.id === currentUser.id ? newUser : user))
+        );
+        setCurrentUser(initialUser);
+        setEditing(false);
+    };
+    return (
+        <div className="container">
+            <div className="row">
+                <div className="five columns">
+                    {editing ? (
+                        <div>
+                            <EditUserForm
+                                currentUser={currentUser}
+                                setEditing={setEditing}
+                                updateUser={updateUser}
+                            />
+                        </div>
+                    ) : (
+                        <div>
+                            <AddUserForm addUser={addUser} />
+                        </div>
+                    )}
+                </div>
+                <div className="seven columns">
+                    <UserTable
+                        users={users}
+                        deleteUser={deleteUser}
+                        editUser={editUser}
+                    />
+                </div>
+            </div>
+        </div>
+    );
 }
 
 export default App;
